@@ -162,7 +162,7 @@ def create_tf_records(infile, outfile):
 
     samples = proteinnet_to_dict(infile)
     # generate data in the tfrecord format
-    with tf.python_io.TFRecordWriter(outfile) as writer:
+    with tf.io.TFRecordWriter(outfile) as writer:
         for sample in samples:
             example = create_example(sample)
             writer.write(example.SerializeToString())
