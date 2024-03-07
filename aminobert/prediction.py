@@ -15,7 +15,7 @@ from aminobert.run_finetuning_and_prediction import run_model
 
 
 if not tf.executing_eagerly():
-    tf.enable_eager_execution()
+    tf.enable.compat.v1.enable_eager_execution()
 
 
 def run_prediction(seqs, qfunc, checkpoint_file, wt_log_prob_mat=None,
