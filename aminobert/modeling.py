@@ -89,7 +89,7 @@ class BertConfig(object):
     @classmethod
     def from_json_file(cls, json_file):
         """Constructs a `BertConfig` from a json file of parameters."""
-        with tf.gfile.GFile(json_file, 'r') as reader:
+        with tf.io.gfile.GFile(json_file, 'r') as reader:
             text = reader.read()
         return cls.from_dict(json.loads(text))
 
@@ -171,8 +171,8 @@ class BertModel(object):
             token_type_ids = tf.zeros(
                 shape=[batch_size, seq_length], dtype=tf.int32)
 
-        with tf.variable_scope(scope, default_name='bert'):
-            with tf.variable_scope('embeddings'):
+        with tf.compat.v1.variable_scope(scope, default_name='bert'):
+            with tf.compat.v1.variable_scope('embeddings'):
                 # Perform embedding lookup on the word ids.
                 (self.embedding_output, self.embedding_table) = embedding_lookup(
                     input_ids=input_ids,
@@ -278,7 +278,7 @@ def gelu(input_tensor):
     Returns:
       `input_tensor` with the GELU activation applied.
     """
-    cdf = 0.5 * (1.0 + tf.erf(input_tensor / tf.sqrt(2.0)))
+    cdf = 0.5 * (1.0 + tf.math.erf(input_tensor / tf.sqrt(2.0)))
     return input_tensor * cdf
 
 
@@ -412,7 +412,7 @@ def embedding_lookup(input_ids,
     if input_ids.shape.ndims == 2:
         input_ids = tf.expand_dims(input_ids, axis=[-1])
 
-    embedding_table = tf.get_variable(
+    embedding_table = tf.compat.v1.get_variable(
         name=word_embedding_name,
         shape=[vocab_size, embedding_size],
         initializer=create_initializer(initializer_range))
@@ -494,7 +494,7 @@ def embedding_postprocessor(input_tensor,
         output += token_type_embeddings
 
     if use_position_embeddings:
-        assert_op = tf.assert_less_equal(seq_length, max_position_embeddings)
+        assert_op = tf.compat.v1.assert_less_equal(seq_length, max_position_embeddings)
         with tf.control_dependencies([assert_op]):
             full_position_embeddings = tf.get_variable(
                 name=position_embedding_name,
