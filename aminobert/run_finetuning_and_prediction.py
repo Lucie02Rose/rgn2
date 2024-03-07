@@ -277,7 +277,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
             representation = tf.reduce_mean(encoder_layer_output, axis=1) # [batch x hidden_size]
             layer_reps.append(representation)
             
-        multi_layer_avg_rep = tf.accumulate_n(layer_reps)/len(layer_reps) # [batch x hidden_size]
+        multi_layer_avg_rep = tf.math.accumulate_n(layer_reps)/len(layer_reps) # [batch x hidden_size]
         multi_layer_reps.append(multi_layer_avg_rep)
     
     representation = tf.concat(multi_layer_reps, axis=1) # [batch x hidden_size*len(seq_embedding_layers)]
@@ -312,7 +312,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
         yhat = tf.nn.bias_add(yhat, output_bias)
         yhat = tf.reshape(yhat, [-1])
                 
-        loss = tf.reduce_mean(tf.squared_difference(labels,yhat))
+        loss = tf.reduce_mean(tf.math.squared_difference(labels,yhat))
 
     return (loss, yhat, cls_output, seq_output, seq_log_probs, representation, rep2, 
             seq_likelihood, seq_likelihood_wrt_wt)
@@ -328,7 +328,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
         """The `model_fn` for TPUEstimator."""
                         
-        tf.logging.info('*** Features ***')
+        tf.compat.v1.logging.info('*** Features ***')
         for name in sorted(features.keys()):
             tf.logging.info('  name = %s, shape = %s' %
                             (name, features[name].shape))
@@ -359,7 +359,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
         )
         
         ## Initialize
-        tvars = tf.trainable_variables()
+        tvars = tf.compat.v1.trainable_variables()
         initialized_variable_names = {}
         scaffold_fn = None
         if init_checkpoint:
@@ -374,7 +374,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
 
                 scaffold_fn = tpu_scaffold
             else:
-                tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+                tf.compat.v1.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
         
         tf.logging.info('**** Trainable Variables ****')
